@@ -82,6 +82,8 @@ function App() {
   const onKeyPress = key => {
     let keyCode = key.toUpperCase().charCodeAt();
 
+    console.log(user.name);
+
     if (key === "{shift}" || key === "{lock}") handleShift();
 
     else if(playable && keyCode >= 65 && keyCode <= 90) 
