@@ -2,7 +2,7 @@
   "name": "hangman-game",
   "version": "0.1.0",
   "private": true,
-  "proxy" : "https://peaceful-crag-10701.herokuapp.com/",
+  "proxy" : "https://hangman-trivia.herokuapp.com/",
   "engines": {
     "node": "12.19.0",
     "npm": "7.20.3"

@@ -11,12 +11,14 @@ import Notification from './components/Notification';
 import Score from './components/Score';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
+import LoginForm from './components/LoginForm';
 
 const apiurl = 'https://random-word-api.herokuapp.com/word?number=10&swear=0';
 
 let selectedWord = '';
   
 function App() {
+
 
   const [message,setMessage] = useState('');
   const [playable,setPlayable] = useState(true);
@@ -28,11 +30,36 @@ function App() {
   const [words, setWords] = useState([]);
   const [layout, setLayout] = useState("default");
   const keyboard = useRef();
+  const [user,setUser] = useState({"name":""})
+  const [flag,setFlag] = useState();
 
   const handleShift = () => {
     const newLayoutName = layout === "default" ? "shift" : "default";
     setLayout(newLayoutName);
   };
+
+  const Login = (details) =>{
+    console.log(details);
+
+    if(details.name !==""){
+      setUser({
+        name : details.name
+      });
+
+      let name = details.name;
+
+      const response = fetch('/enter_user',{
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify(name)
+      });
+      
+      console.log(response);
+      
+    }
+  }
 
   function handleInput(key){
     const letter = key.toLowerCase();
@@ -61,6 +88,8 @@ function App() {
       handleInput(key);
   };
   
+
+
   useEffect(() => {
     fetch("/api").then(response=>response.json().then(data=>{
         console.log(data);
@@ -87,19 +116,6 @@ function App() {
     //console.log('word selected is: ',selectedWord);
   }
 
-  useEffect(()=>{
-    const handleKeydown = event =>{
-
-      const {key, keyCode} = event;
-
-        if (playable && keyCode >= 65 && keyCode <= 90)    
-          handleInput(key);
-      }
-
-    window.addEventListener('keydown',handleKeydown);
-    return () => window.removeEventListener('keydown',handleKeydown);
-  
-  },[correctLetters,wrongLetters,playable]);
 
   const playAgain=(gameOver)=>{
     setPlayable(true);
@@ -128,8 +144,9 @@ function App() {
   }
   
   return (
-    <div className="App">
-        <h1>{message}</h1>
+
+      (user.name != "") ? (
+      <div className="App">
         <Header currentQuestion={currentQuestion} words={words} />
         <WrongLetters wrongLetters={wrongLetters} />
       
@@ -161,6 +178,7 @@ function App() {
       :false}      
       </div>
     </div>
+    ): ( <LoginForm Login={Login} /> )
   );
 }
 
