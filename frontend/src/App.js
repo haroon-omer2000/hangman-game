@@ -149,6 +149,7 @@ function App() {
 
       (user.name != "") ? (
       <div className="App">
+        <h1>New_Name:={user.name}=</h1>
         <Header currentQuestion={currentQuestion} words={words} />
         <WrongLetters wrongLetters={wrongLetters} />
       
