@@ -11,16 +11,14 @@ import Notification from './components/Notification';
 import Score from './components/Score';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
-import LoginForm from './components/LoginForm';
-
-const apiurl = 'https://random-word-api.herokuapp.com/word?number=10&swear=0';
+import Instructions from './components/Instructions';
+import GuestLogin from './components/GuestLogin';
+import EmployeeLogin from './components/EmployeeLogin';
 
 let selectedWord = '';
   
 function App() {
 
-
-  const [message,setMessage] = useState('');
   const [playable,setPlayable] = useState(true);
   const [wrongLetters,setWrongLetters] = useState([]);
   const [correctLetters,setCorrectLetters] = useState([]);
@@ -30,35 +28,61 @@ function App() {
   const [words, setWords] = useState([]);
   const [layout, setLayout] = useState("default");
   const keyboard = useRef();
-  const [user,setUser] = useState({"name":""})
-  const [flag,setFlag] = useState();
+  const [user,setUser] = useState({"email":"","emp_id":"","attempt_no":"","as_guest":false,"name":"","guest_id":""})
 
   const handleShift = () => {
     const newLayoutName = layout === "default" ? "shift" : "default";
     setLayout(newLayoutName);
   };
 
-  const Login = (details) =>{
-    console.log(details);
+  const changeView = (isGuest) => {
+    setUser({...user,as_guest:isGuest});
+  }
 
-    if(details.name !==""){
+  const Login = (details) =>{
+
       setUser({
+        email : details.email,
+        emp_id : details.emp_id,
+        as_guest : details.as_guest,
         name : details.name
       });
 
+      let email = details.email;
+      let emp_id = details.emp_id;
+      let as_guest = details.as_guest;
       let name = details.name;
+      let attempt_no = details.attempt_no;
+
+      const userDetails={
+        email,
+        emp_id,
+        as_guest,
+        name,
+        attempt_no
+      };
 
       const response = fetch('/enter_user',{
         method: "POST",
         headers: {
             "Content-Type":"application/json"
         },
-        body: JSON.stringify(name)
-      });
-      
-      console.log(response);
-      
-    }
+        body: JSON.stringify(userDetails)
+      }).then(response=>response.json().then(data=>{
+
+        setUser({...user,
+          guest_id:data['id'],
+          name : details.name,
+          as_guest : details.as_guest,
+          email : details.email,
+          emp_id : details.emp_id,
+          attempt_no : data['attempt_no']
+        });
+
+        setWords(data['words']);
+
+      }));
+                
   }
 
   function handleInput(key){
@@ -89,23 +113,7 @@ function App() {
     else if(playable && keyCode >= 65 && keyCode <= 90) 
       handleInput(key);
   };
-  
-
-
-  useEffect(() => {
-    fetch("/api").then(response=>response.json().then(data=>{
-        console.log(data);
-        setMessage(data['tutorial']);
-      }))
-    }, []);
-  
-
-  useEffect(()=>{
-    fetch(apiurl).then((data) => 
-      data.json()).then(data=>{
-        setWords(data);
-      })
-  },[]);
+    
 
   useEffect(()=>{
     if(words.length!==0){
@@ -115,11 +123,32 @@ function App() {
 
   if(words.length!==0){
     selectedWord = words[currentQuestion];
-    //console.log('word selected is: ',selectedWord);
   }
 
+  const quitGame = () => {
+      
+    setPlayable(true);
 
-  const playAgain=(gameOver)=>{
+    setWords([]);
+
+    setCurrentQuestion(0);
+    setScore(0);
+
+    setCorrectLetters([]);
+    setWrongLetters([]);
+
+    setUser({...user,
+      email : "",
+      emp_id : "",
+      as_guest : false,
+      name : "", 
+      guest_id : "",
+      attempt_no : ""
+    });
+  }
+
+  const playAgain = (gameOver) => {
+    
     setPlayable(true);
 
     if(!gameOver){
@@ -133,55 +162,111 @@ function App() {
     }
 
     else{
-      fetch(apiurl).then((data) => 
-      data.json()).then(data=>{
-        setWords(data);
-      });
-      setCurrentQuestion(0);
-      setScore(0);
+            
+      let email = user.email;
+      let emp_id = user.emp_id;
+      let as_guest = user.as_guest;
+      let name = user.name;
+
+      setWords([]);
+      setUser({attempt_no:""})
+
+      let attempt_no = "";
+
+      const userDetails={
+        email,
+        emp_id,
+        as_guest,
+        name,
+        attempt_no
+      };
+
+      const response = fetch('/enter_user',{
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify(userDetails)
+      }).then(response=>response.json().then(data=>{
+                            
+          setUser({...user,
+            guest_id : data['id'],
+            attempt_no : data['attempt_no']
+          });
+
+          setWords(data['words']);
+
+      }));
+        setCurrentQuestion(0);
+        setScore(0);
     }
-      // clear arrays
       setCorrectLetters([]);
       setWrongLetters([]);
   }
   
   return (
 
-      (user.name != "") ? (
+      (user.email !== "" || user.guest_id !== "") ? (
+      
       <div className="App">
-        <h1>New_Name:={user.name}=</h1>
+      
         <Header currentQuestion={currentQuestion} words={words} />
         <WrongLetters wrongLetters={wrongLetters} />
       
         <div className="App">          
+      
           <Figure wrongLetters={wrongLetters} />
-          {(words.length!==0)?
-          <Word selectedWord={selectedWord} correctLetters={correctLetters} />
-          :false}
-          {(showNotification)?
-          <Notification showNotification={showNotification}/>
-          : false}
+      
+          {(words.length !== 0)? <Word selectedWord={selectedWord} correctLetters={correctLetters} /> : false}
 
-      {(words.length!==0)?
-      <div>
-        <div className="App">
-          <Score score={score} words={words}/>
+          {(showNotification)?<Notification showNotification={showNotification}/> : false}
+
+          {(words.length !== 0)?
+            
+            <div>
+             
+              <div className="App">
+                <Score score={score} words={words}/>
+              </div>
+
+              <div className="Keyboard">
+                <Keyboard keyboardRef={r => (keyboard.current = r)} layoutName={layout} onKeyPress={onKeyPress}/>
+              </div>
+
+              <Popup user={user} correctLetters={correctLetters} wrongLetters={wrongLetters} setPlayable={setPlayable} 
+              selectedWord={selectedWord} playAgain={playAgain} currentQuestion={currentQuestion} words={words} score={score} setScore={setScore} quitGame={quitGame} />      
+            
+            </div>
+
+          :false}    
+
         </div>
 
-        <div className="Keyboard">
-          <Keyboard
-            keyboardRef={r => (keyboard.current = r)}
-            layoutName={layout}
-            onKeyPress={onKeyPress}/>
-        </div>
+      </div>
+    ): ( 
+        <div> 
 
-      <Popup correctLetters={correctLetters} wrongLetters={wrongLetters} setPlayable={setPlayable} 
-       selectedWord={selectedWord} playAgain={playAgain} currentQuestion={currentQuestion} words={words} score={score} setScore={setScore} />      
-      </div>
-      :false}      
-      </div>
-    </div>
-    ): ( <LoginForm Login={Login} /> )
+            { user.emp_id === "" && user.guest_id === "" ? 
+              
+              <div>
+      
+                <Instructions /> 
+      
+                { user.as_guest===false  ? 
+                
+                  <div>
+                    <EmployeeLogin Login={Login} changeView={changeView} />
+                  </div>
+                : <GuestLogin Login={Login} changeView={changeView} />
+                }
+
+              </div>
+
+              : false
+            }
+
+        </div>
+      )
   );
 }
 

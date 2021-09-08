@@ -81,6 +81,69 @@ h1 {
   bottom: 10px;
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-input {
+  margin-bottom: 30px;
+}
+
+.inputbox {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  outline: none;
+  background: none;
+  background-color: white;
+  border-radius: 8px;
+  color: #53565a;
+  font-size: 20px;
+  font-weight: 300px;
+  transition: 0.4s ease-out;
+}
+
+.input-label {
+  color: black;
+  font-weight: bold;
+}
+
+.Instructions-Page {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  align-items: center;
+}
+
+.instructions {
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.submit-button {
+  display: flex;
+  padding: 15px 30px;
+  font-size: 14px;
+  font-weight: 700;
+  position: relative;
+  background-color: black;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: 0.4s ease-out;
+}
+
+.submit-button:hover {
+  background: greenyellow;
+  color: black;
+}
+
 .letter {
   border-bottom: 3px solid #2980b9;
   display: inline-flex;
@@ -89,7 +152,7 @@ h1 {
   justify-content: center;
   margin: 0 5px;
   height: 50px;
-  width: 20px;
+  width: 25px;
 }
 
 .popup-container {
@@ -140,7 +203,4 @@ h1 {
 
 .notification-container p {
   margin: 0;
-}
-
-.notification-container.show {
 }

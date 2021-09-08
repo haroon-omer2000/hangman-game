@@ -16,17 +16,24 @@ def serve():
 @app.route('/enter_user',methods=['POST'])
 @cross_origin()
 def enter_user():
-    name = request.get_json()
-    controller_obj = controller.Controller()
-    controller_obj.enter_user(name)
-    return "",201
 
+    details = request.get_json()
+    
+    controller_obj = controller.Controller() 
+    status = controller_obj.enter_user(details)
 
-@app.route('/api', methods=['GET'])
+    return status
+
+@app.route('/update_score',methods=['POST'])
 @cross_origin()
-def index():
-    return {'tutorial': 'Flask APP Heroku'}
+def update_score():
 
+    scoreDetails = request.get_json()
+
+    controller_obj = controller.Controller() 
+    status = controller_obj.update_score(scoreDetails)
+
+    return jsonify({'status':status})
 
 
 if __name__ == '__main__':

@@ -1,25 +1,61 @@
-import React, {useEffect} from 'react';
+import React, {useEffect,useState} from 'react';
 import {checkWin} from '../helpers/helpers';
 
 let check = false;
 
-const Popup = ({correctLetters,wrongLetters,setPlayable,selectedWord, playAgain, currentQuestion, words, score, setScore}) => {
+const Popup = ({user,correctLetters,wrongLetters,setPlayable,selectedWord, playAgain, currentQuestion, words, score, setScore, quitGame}) => {
+
     let finalMessage = '';
     let finalMessageRevealWord = '';
     let playable = true;
     let gameOver = false;
 
-    function updateScore(){
-        if(!check){
+    const isWin = (((checkWin(correctLetters,wrongLetters,selectedWord) === 'win') && (currentQuestion < words.length -1)) || ((checkWin(correctLetters,wrongLetters,selectedWord) === 'win') && (currentQuestion === words.length -1 )));
+
+    useEffect(() => {
+
+        if (isWin) {
+
             check = true;
-            setScore(score => (score + 1));
+
+            // updating score in database
+            let new_score = score + 1;
+
+            setScore((score) => score + 1);          
+
+            let id = NaN;
+            let isGuest = user.as_guest;
+            let attempt_no = user.attempt_no;
+
+            if(user.as_guest === true)
+                id = user.guest_id;
+            else
+                id = user.emp_id;
+
+            const scoreDetails={
+                new_score,
+                id,
+                isGuest,
+                attempt_no
+            };
+
+            const response = fetch('/update_score',{
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(scoreDetails)
+            }).then(response=>response.json().then(data=>{                                    
+                console.log('Recieved Status: ',data['status']);
+            }));
+
         }
-    };
+      }, [isWin, setScore]);
+
 
     if ((checkWin(correctLetters,wrongLetters,selectedWord) === 'win') && (currentQuestion < words.length -1)){
         finalMessage = 'Congratulations, you guessed it right!';
         playable = false;
-        updateScore();
     } else if ((checkWin(correctLetters,wrongLetters,selectedWord) === 'lose') && (currentQuestion < words.length -1)){
         finalMessage = 'Unfortunately, you could not guess it.';
         finalMessageRevealWord = `... the word was ${selectedWord.toUpperCase()}`;
@@ -34,7 +70,6 @@ const Popup = ({correctLetters,wrongLetters,setPlayable,selectedWord, playAgain,
         finalMessageRevealWord = `You scored ${score} out of ${words.length}`;
         gameOver = true;
         playable = false;
-        updateScore();
     }
 
     useEffect(() => {
@@ -50,7 +85,8 @@ const Popup = ({correctLetters,wrongLetters,setPlayable,selectedWord, playAgain,
             <div className="popup">
                 <h2>{finalMessage}</h2>
                 <h3>{finalMessageRevealWord}</h3>
-                <button onClick={() => playAgain(gameOver)}>{(!gameOver)?"Next Word":"Start Over"}</button>
+                <button onClick={() => playAgain(gameOver)}>{(!gameOver)?"Next Word":"Start Over"}</button><br/>
+                {gameOver === true ? <button onClick={()=> quitGame()}>Quit</button> : false}
             </div>
          </div>    
     );
