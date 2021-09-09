@@ -28,6 +28,7 @@ function App() {
   const [words, setWords] = useState([]);
   const [layout, setLayout] = useState("default");
   const keyboard = useRef();
+  const [wordsLoaded,setWordsLoaded] = useState(false);
   const [user,setUser] = useState({"email":"","emp_id":"","attempt_no":"","as_guest":false,"name":"","guest_id":""})
 
   const handleShift = () => {
@@ -80,6 +81,7 @@ function App() {
         });
 
         setWords(data['words']);
+        setWordsLoaded(true);
 
       }));
                 
@@ -169,6 +171,7 @@ function App() {
       let name = user.name;
 
       setWords([]);
+      setWordsLoaded(false);
       setUser({attempt_no:""})
 
       let attempt_no = "";
@@ -195,6 +198,7 @@ function App() {
           });
 
           setWords(data['words']);
+          setWordsLoaded(true);
 
       }));
         setCurrentQuestion(0);
@@ -210,7 +214,7 @@ function App() {
       
       <div className="App">
       
-        <Header currentQuestion={currentQuestion} words={words} />
+        <Header currentQuestion={currentQuestion} words={words} wordsLoaded={wordsLoaded} />
         <WrongLetters wrongLetters={wrongLetters} />
       
         <div className="App">          
