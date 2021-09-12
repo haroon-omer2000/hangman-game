@@ -83,8 +83,8 @@ const Popup = ({user,correctLetters,wrongLetters,setPlayable,selectedWord, playA
     return (
         <div className="popup-container" style={finalMessage !== '' ? {display:'flex'} : {}} >
             <div className="popup">
-                <h2>{finalMessage}</h2>
-                <h3>{finalMessageRevealWord}</h3>
+                <h2 className="popup_word">{finalMessage}</h2>
+                <h3 className="popup_word">{finalMessageRevealWord}</h3>
                 <button onClick={() => playAgain(gameOver)}>{(!gameOver)?"Next Word":"Start Over"}</button><br/>
                 {gameOver === true ? <button onClick={()=> quitGame()}>Quit</button> : false}
             </div>

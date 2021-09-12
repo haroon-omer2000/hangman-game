@@ -5,7 +5,7 @@ class Controller():
 
     def __init__(self):
 
-        self.mydb = mysql.connector.connect(host='sql6.freemysqlhosting.net', user='sql6434713', password='Heblw1KjB2', database='sql6434713')
+        self.mydb = mysql.connector.connect(host='bkjd4bperxq5p5vaqjrk-mysql.services.clever-cloud.com', user='uvluoi7yubvndnjk', password='Ev2KlWre5wz1PnhxZGyx', database='bkjd4bperxq5p5vaqjrk')
 
     def get_words(self):
 
@@ -83,3 +83,4 @@ class Controller():
             return self.update_guest_score(scoreDetails['id'],scoreDetails['new_score'])
         else:
             return self.update_employee_score(scoreDetails['id'],scoreDetails['attempt_no'],scoreDetails['new_score'])
+
